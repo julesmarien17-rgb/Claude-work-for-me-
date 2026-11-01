@@ -1,6 +1,6 @@
 # What If Bot: automatische "What if…?" TikTok-video's
 
-Je typt één zin, bijvoorbeeld **"What if all rubber disappeared for 5 seconds?"**, en de bot maakt er een verticale TikTok-video van (1080×1920, 30 fps, met muziek), in de stijl van de bekende "what if"-simulatieaccounts.
+Je typt één zin, bijvoorbeeld **"What if all rubber disappeared for 5 seconds?"**, en de bot maakt er een verticale TikTok-video van (1080×1920, 30 fps, met voice-over en muziek, minstens 23 seconden), in de stijl van de bekende "what if"-simulatieaccounts.
 
 Het is **geen AI-video**. Claude schrijft een scène als code, en jouw computer bouwt die als 3D-wereld en rendert hem frame voor frame.
 
@@ -50,7 +50,7 @@ Open daarna **http://localhost:3000**.
   - **Download**: sla de MP4 op en upload hem zelf op TikTok.
   - **Kopieer tekst**: kopieer de beschrijving met hashtags, klaar om te plakken.
   - **Live**: speel de 3D-scène live af in je browser.
-- Bij **Instellingen** zet je je TikTok-naam (het watermerk in de video), de kwaliteit en de zelfcontrole.
+- Bij **Instellingen** zet je je TikTok-naam (het watermerk in de video), de kwaliteit, de minimale lengte (standaard 23 seconden), de voice-over en de zelfcontrole.
 
 Via de terminal:
 
@@ -80,7 +80,7 @@ PORT=3000
 
 ## Rendertijd
 
-Een video van ~18 seconden kost op een moderne laptop een paar minuten. Op de kwaliteit **Snel** gaat het ongeveer twee keer zo snel.
+Een video van ~25 seconden kost op een moderne laptop een paar minuten. Op de kwaliteit **Snel** gaat het ongeveer twee keer zo snel.
 
 ## Mappen
 

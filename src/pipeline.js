@@ -52,7 +52,7 @@ export async function makeVideo(prompt, o = {}) {
       step('premise', `${plan.premise?.verdict === 'twist' ? 'Nieuwe twist: ' : 'Idee OK: '}${plan.premise?.note || ''}`);
       if (plan.facts?.length) step('sources', plan.facts.map((f) => `${f.text} (${f.source})`).join(' | '));
     }
-    let spec = plan.spec;
+    let spec = ensureMinDuration(plan.spec, settings.minDuration);
     spec.handle = spec.handle || settings.handle;
     meta.title = spec.title; meta.facts = plan.facts || []; meta.premise = plan.premise;
     meta.tiktok = plan.tiktok || { description: spec.title, hashtags: ['whatif', 'simulation', 'science'] };
@@ -81,6 +81,7 @@ export async function makeVideo(prompt, o = {}) {
       }
       break;
     }
+    spec = ensureMinDuration(spec, settings.minDuration);
     meta.title = spec.title;
     fs.writeFileSync(path.join(dir, 'spec.json'), JSON.stringify(spec, null, 2));
 
@@ -100,6 +101,20 @@ export async function makeVideo(prompt, o = {}) {
   } catch (e) {
     meta.status = 'error'; meta.error = e.message; step('error', e.message); throw e;
   }
+}
+
+// Make sure a video is at least `min` seconds: stretches every timing proportionally.
+export function ensureMinDuration(spec, min = 23) {
+  const d = Number(spec.duration) || 18;
+  if (d >= min) return spec;
+  const f = min / d, sc = (v) => (v == null || !Number.isFinite(Number(v)) ? v : Math.round(Number(v) * f * 100) / 100);
+  spec.duration = min;
+  for (const e of spec.effects || []) { e.start = sc(e.start); if (e.end != null) e.end = sc(e.end); if (e.ramp != null) e.ramp = sc(e.ramp); if (e.spread != null) e.spread = sc(e.spread); }
+  for (const c of spec.captions || []) { if (c.start != null) c.start = sc(c.start); if (c.t != null) c.t = sc(c.t); if (c.end != null) c.end = sc(c.end); }
+  for (const h of spec.hud || []) { h.start = sc(h.start); h.end = sc(h.end); if (h.alertAfter != null) h.alertAfter = sc(h.alertAfter); if (Array.isArray(h.show)) h.show = h.show.map(sc); }
+  for (const v of Array.isArray(spec.voiceover) ? spec.voiceover : []) { if (v.start != null) v.start = sc(v.start); if (v.t != null) v.t = sc(v.t); }
+  if (spec.endcard?.start != null) spec.endcard.start = sc(spec.endcard.start);
+  return spec;
 }
 
 function keyTimes(spec) {

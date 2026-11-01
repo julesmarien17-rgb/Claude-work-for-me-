@@ -94,6 +94,7 @@
     <div class="settings">
       <div><label>TikTok-naam (watermerk)</label><input id="s-handle"></div>
       <div><label>Kwaliteit</label><select id="s-quality"><option value="draft">Snel (concept)</option><option value="medium">Normaal</option><option value="high">Hoog (traag)</option></select></div>
+      <div><label>Minimale lengte (seconden)</label><input id="s-min" type="number" min="10" max="60" step="1"></div>
       <div><label>Voice-over (stem)</label><select id="s-voice"><option value="true">Aan</option><option value="false">Uit</option></select></div>
       <div><label>Claude controleert eigen frames</label><select id="s-review"><option value="true">Aan</option><option value="false">Uit (sneller)</option></select></div>
     </div>
@@ -112,9 +113,9 @@ const STEP = { premise:'1 · Idee checken', sources:'2 · Bronnen', check:'3 · 
 async function loadStatus() {
   const s = await api('/api/status');
   $('#backend').textContent = s.backend === 'api' ? 'Claude via API-key' : 'Claude via je Claude-abonnement';
-  $('#s-handle').value = s.settings.handle; $('#s-quality').value = s.settings.quality; $('#s-review').value = String(s.settings.selfReview); $('#s-voice').value = String(s.settings.voiceover !== false);
+  $('#s-handle').value = s.settings.handle; $('#s-quality').value = s.settings.quality; $('#s-review').value = String(s.settings.selfReview); $('#s-voice').value = String(s.settings.voiceover !== false); $('#s-min').value = s.settings.minDuration ?? 23;
 }
-$('#save').onclick = async () => { await api('/api/settings', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ handle: $('#s-handle').value.replace(/^@/,''), quality: $('#s-quality').value, selfReview: $('#s-review').value === 'true', voiceover: $('#s-voice').value === 'true' }) }); toast('Opgeslagen'); };
+$('#save').onclick = async () => { await api('/api/settings', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ handle: $('#s-handle').value.replace(/^@/,''), quality: $('#s-quality').value, selfReview: $('#s-review').value === 'true', voiceover: $('#s-voice').value === 'true', minDuration: Math.max(10, Math.min(60, Number($('#s-min').value) || 23)) }) }); toast('Opgeslagen'); };
 
 $('#go').onclick = async () => {
   const prompts = $('#prompt').value.split('\n').map((s) => s.trim()).filter(Boolean);

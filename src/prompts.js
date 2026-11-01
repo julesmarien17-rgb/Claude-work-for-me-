@@ -10,7 +10,7 @@ SPEC FORMAT (all times in seconds):
   "setting": "city|beach|suburb|highway|park|desert|snow|harbor",
   "time": "day|sunset|night",
   "weather": "clear|rain|snow|ash|sand|confetti|embers|fireflies",   // optional ambient weather
-  "duration": 15-30,                     // keep it tight: 16-22 is ideal
+  "duration": 24-32,                     // MINIMUM 23 seconds; 25-28 is ideal (build-up, effect, consequences, twist)
   "location": "TIMES SQUARE · NEW YORK", // small caps label, real-sounding place that fits the setting
   "camera": { "mode": "street|aerial|orbit|drone|low|static", "height": 3, "speed": 1 },
   "mood": "tense|wonder|dark",           // soundtrack
@@ -71,6 +71,8 @@ EFFECTS (common fields: type, start, end (optional), ramp (fade seconds, default
 RULES
 - Be scientifically grounded: numbers in hud/captions must be realistic and defensible.
 - Captions: short (max ~8 words), punchy, escalating. The last caption is a twist or a cliffhanger.
+- Length: at least 23 seconds. Use the time: hook (0-4s), the event (4-8s), 2-3 escalating consequences with their own
+  caption + voice line, then the twist. Use 5-7 captions and 5-7 voice-over lines spread over the whole video.
 - Pick the setting and camera that show the effect best (e.g. tires -> city street, ocean draining -> beach, meteor -> aerial or drone).
 - Captions are in the SAME LANGUAGE as the user's prompt.
 `;

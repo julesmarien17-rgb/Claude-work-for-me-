@@ -1169,7 +1169,7 @@ function num(v, d) { const n = Number(v); return Number.isFinite(n) ? n : d; }
 function normalizeSpec(s) {
   s = JSON.parse(JSON.stringify(s || {}));
   s.title = s.title || 'What if...?';
-  s.duration = clamp(num(s.duration, 20), 5, 90);
+  s.duration = clamp(num(s.duration, 25), 5, 90);
   s.setting = BUILDERS[s.setting] ? s.setting : 'city';
   s.time = TIMES[s.time] ? s.time : 'day';
   s.camera = typeof s.camera === 'string' ? { mode: s.camera } : (s.camera || {});
