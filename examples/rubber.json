@@ -1,0 +1,24 @@
+{
+  "title": "What if all rubber disappeared for 5 seconds?",
+  "setting": "city",
+  "time": "day",
+  "duration": 18,
+  "location": "TIMES SQUARE · NEW YORK",
+  "camera": { "mode": "street", "height": 2.4, "offsetX": 0 },
+  "mood": "tense",
+  "hud": [
+    { "label": "Rubber disappears in", "from": 4, "to": 0, "start": 0.5, "end": 4.5, "unit": "s", "decimals": 1, "ease": "linear", "show": [0.3, 4.8] },
+    { "label": "Cars stopped", "from": 0, "to": 352, "start": 5, "end": 9, "show": [5, 18], "alert": true }
+  ],
+  "effects": [
+    { "type": "vanish", "target": "tires", "start": 4.5, "end": 9.5, "stagger": 0.4 },
+    { "type": "shake", "start": 4.6, "end": 6, "amount": 0.15, "revert": true }
+  ],
+  "captions": [
+    { "text": "What if all rubber disappeared for 5 seconds?", "start": 0.2, "end": 4.4, "style": "title" },
+    { "text": "Every tire on Earth is gone.", "start": 5.2, "end": 8.5, "style": "subtitle" },
+    { "text": "1.5 billion cars hit the ground at once.", "start": 9.8, "end": 13.5, "style": "subtitle" },
+    { "text": "Part 2: the shoes?", "start": 14.5, "end": 18, "style": "subtitle" }
+  ],
+  "handle": "whatif.bot"
+}

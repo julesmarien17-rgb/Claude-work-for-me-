@@ -1,0 +1,44 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+body.preview { width: auto; height: auto; overflow: auto; background: #111; display: flex; justify-content: center; }
+#stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; transform-origin: top left; }
+#gl { position: absolute; inset: 0; width: 1080px; height: 1920px; display: block; }
+#grade { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: multiply; opacity: 0; }
+#flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+#overlay { position: absolute; inset: 0; pointer-events: none; font-family: "Inter", "Helvetica Neue", Arial, sans-serif; color: #fff; }
+
+#title {
+  position: absolute; left: 90px; right: 90px; top: 440px; text-align: center;
+  font-family: Georgia, "DejaVu Serif", "Times New Roman", serif; font-size: 64px; line-height: 1.18;
+  text-shadow: 0 0 24px rgba(0,0,0,.6), 0 3px 12px rgba(0,0,0,.7), 0 1px 3px rgba(0,0,0,.8); opacity: 0;
+}
+#subtitle {
+  position: absolute; left: 90px; right: 90px; top: 1180px; text-align: center;
+  font-family: Georgia, "DejaVu Serif", "Times New Roman", serif; font-style: italic; font-size: 52px; line-height: 1.2;
+  text-shadow: 0 0 24px rgba(0,0,0,.75), 0 2px 10px rgba(0,0,0,.8), 0 1px 3px rgba(0,0,0,.9); opacity: 0;
+}
+#big {
+  position: absolute; left: 60px; right: 60px; top: 760px; text-align: center;
+  font-weight: 900; font-size: 120px; letter-spacing: -2px; line-height: 1;
+  text-shadow: 0 6px 30px rgba(0,0,0,.6); opacity: 0;
+}
+#location {
+  position: absolute; left: 70px; top: 250px; font-size: 24px; letter-spacing: 4px; font-weight: 600;
+  opacity: 0; text-shadow: 0 1px 6px rgba(0,0,0,.6);
+}
+#hud { position: absolute; left: 70px; top: 290px; display: flex; flex-direction: column; gap: 18px; }
+.hud-item { opacity: 0; transition: none; }
+.hud-item .lbl { font-size: 24px; letter-spacing: 3px; font-weight: 700; opacity: .85; text-transform: uppercase; text-shadow: 0 1px 6px rgba(0,0,0,.7); }
+.hud-item .val { font-size: 76px; font-weight: 800; letter-spacing: -1px; line-height: 1.05; font-variant-numeric: tabular-nums; text-shadow: 0 2px 14px rgba(0,0,0,.55); }
+.hud-item .val small { font-size: 36px; font-weight: 700; margin-left: 6px; opacity: .9; }
+.hud-item .sub { font-size: 20px; letter-spacing: 2px; opacity: .75; text-transform: uppercase; text-shadow: 0 1px 6px rgba(0,0,0,.7); }
+.hud-item.alert .val { color: #ffd84a; }
+#hud.right { left: auto; right: 70px; align-items: flex-end; text-align: right; }
+
+#watermark {
+  position: absolute; right: 60px; bottom: 330px; font-size: 26px; font-weight: 700; opacity: .8;
+  text-shadow: 0 1px 6px rgba(0,0,0,.7);
+}
+#endcard { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 40px; opacity: 0; background: rgba(5,8,20,.55); }
+#endcard .ec-q { font-family: Georgia, "DejaVu Serif", serif; font-size: 64px; text-align: center; padding: 0 100px; line-height: 1.2; text-shadow: 0 3px 18px rgba(0,0,0,.6); }
+#endcard .ec-follow { font-size: 40px; font-weight: 800; background: #ffd84a; color: #111; padding: 18px 40px; border-radius: 999px; }

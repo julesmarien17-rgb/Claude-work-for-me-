@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080, height=1920">
+<title>What If Sim Engine</title>
+<link rel="stylesheet" href="./overlay.css">
+<script type="importmap">
+{ "imports": { "three": "/vendor/three/three.module.js" } }
+</script>
+</head>
+<body>
+<div id="stage">
+  <canvas id="gl"></canvas>
+  <div id="grade"></div>
+  <div id="flash"></div>
+  <div id="overlay">
+    <div id="location"></div>
+    <div id="hud"></div>
+    <div id="title"></div>
+    <div id="subtitle"></div>
+    <div id="big"></div>
+    <div id="watermark"></div>
+    <div id="endcard"><div class="ec-q"></div><div class="ec-follow">Follow for part 2</div></div>
+  </div>
+</div>
+<script type="module" src="./sim.js"></script>
+</body>
+</html>

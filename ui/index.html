@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What-If Bot</title>
+<style>
+  :root { --bg:#0b0d1a; --panel:#141830; --line:#262b4d; --text:#eef0ff; --muted:#9097c0; --accent:#ffd84a; --ok:#3ad29f; --bad:#ff6b6b; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.5 Inter, system-ui, -apple-system, Segoe UI, sans-serif; }
+  .wrap { max-width:1200px; margin:0 auto; padding:24px 16px 80px; }
+  header { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:20px; }
+  h1 { font-size:26px; margin:0; letter-spacing:-.5px; } h1 span { color:var(--accent); }
+  .pill { font-size:12px; color:var(--muted); border:1px solid var(--line); padding:4px 10px; border-radius:999px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:18px; margin-bottom:18px; }
+  textarea, input, select { width:100%; background:#0e1124; color:var(--text); border:1px solid var(--line); border-radius:10px; padding:12px; font:inherit; }
+  textarea { min-height:84px; resize:vertical; font-size:17px; }
+  button { background:var(--accent); color:#111; border:0; border-radius:10px; padding:11px 18px; font:inherit; font-weight:700; cursor:pointer; }
+  button.ghost { background:transparent; color:var(--text); border:1px solid var(--line); font-weight:600; }
+  button.small { padding:6px 10px; font-size:13px; }
+  button:disabled { opacity:.5; cursor:default; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:10px; }
+  .hint { color:var(--muted); font-size:13px; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .chip { background:#1d2246; border:1px solid var(--line); color:var(--text); padding:7px 12px; border-radius:999px; cursor:pointer; font-size:14px; font-weight:500; }
+  .chip:hover { border-color:var(--accent); }
+  h2 { font-size:18px; margin:0 0 12px; }
+  .job { border-top:1px solid var(--line); padding:12px 0; } .job:first-child { border-top:0; }
+  .job .t { font-weight:700; } .job .s { color:var(--muted); font-size:13px; margin-top:4px; }
+  .bar { height:6px; background:#0e1124; border-radius:6px; overflow:hidden; margin-top:8px; } .bar i { display:block; height:100%; background:var(--accent); width:0; transition:width .4s; }
+  .st-done { color:var(--ok); } .st-error { color:var(--bad); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(250px,1fr)); gap:16px; }
+  .vid { background:#0e1124; border:1px solid var(--line); border-radius:14px; overflow:hidden; display:flex; flex-direction:column; }
+  .vid video { width:100%; aspect-ratio:9/16; background:#000; display:block; }
+  .vid .body { padding:12px; display:flex; flex-direction:column; gap:8px; flex:1; }
+  .vid .title { font-weight:700; line-height:1.3; }
+  .vid .meta { color:var(--muted); font-size:12px; }
+  .vid details { font-size:13px; color:var(--muted); } .vid details li { margin:4px 0; }
+  .vid .actions { display:flex; gap:6px; flex-wrap:wrap; margin-top:auto; }
+  .vid a.btn { text-decoration:none; background:var(--accent); color:#111; border-radius:10px; padding:6px 10px; font-size:13px; font-weight:700; }
+  .settings { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; }
+  label { font-size:13px; color:var(--muted); display:block; margin-bottom:4px; }
+  .empty { color:var(--muted); text-align:center; padding:30px; }
+  .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--accent); color:#111; padding:10px 18px; border-radius:999px; font-weight:700; opacity:0; transition:opacity .3s; pointer-events:none; }
+  .toast.on { opacity:1; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>What&nbsp;If <span>Bot</span></h1>
+    <span class="pill" id="backend">…</span>
+  </header>
+
+  <div class="card">
+    <h2>Nieuwe video</h2>
+    <textarea id="prompt" placeholder="What if all rubber disappeared for 5 seconds?&#10;(meerdere regels = meerdere video's)"></textarea>
+    <div class="row">
+      <button id="go">Maak video</button>
+      <button class="ghost" id="ideas">Geef me ideeën</button>
+      <span class="hint">Eén zin is genoeg. Claude checkt het idee, zoekt bronnen, schrijft de scène, controleert de frames en je computer rendert de video.</span>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div class="card" id="queueCard" style="display:none">
+    <h2>Bezig</h2>
+    <div id="queue"></div>
+  </div>
+
+  <div class="card">
+    <h2>Mijn video's</h2>
+    <div class="grid" id="videos"></div>
+  </div>
+
+  <div class="card">
+    <h2>Instellingen</h2>
+    <div class="settings">
+      <div><label>TikTok-naam (watermerk)</label><input id="s-handle"></div>
+      <div><label>Kwaliteit</label><select id="s-quality"><option value="draft">Snel (concept)</option><option value="medium">Normaal</option><option value="high">Hoog (traag)</option></select></div>
+      <div><label>Claude controleert eigen frames</label><select id="s-review"><option value="true">Aan</option><option value="false">Uit (sneller)</option></select></div>
+    </div>
+    <div class="row"><button class="ghost small" id="save">Opslaan</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]);
+const api = (u, o) => fetch(u, o).then((r) => r.json());
+const toast = (m) => { const t = $('#toast'); t.textContent = m; t.classList.add('on'); setTimeout(() => t.classList.remove('on'), 1800); };
+const STEP = { premise:'1 · Idee checken', sources:'2 · Bronnen', check:'3 · Code testen', fix:'4 · Zichzelf repareren', review:'4 · Frames controleren', render:'5 · Renderen', done:'Klaar', error:'Fout' };
+
+async function loadStatus() {
+  const s = await api('/api/status');
+  $('#backend').textContent = s.backend === 'api' ? 'Claude via API-key' : 'Claude via je Claude-abonnement';
+  $('#s-handle').value = s.settings.handle; $('#s-quality').value = s.settings.quality; $('#s-review').value = String(s.settings.selfReview);
+}
+$('#save').onclick = async () => { await api('/api/settings', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ handle: $('#s-handle').value.replace(/^@/,''), quality: $('#s-quality').value, selfReview: $('#s-review').value === 'true' }) }); toast('Opgeslagen'); };
+
+$('#go').onclick = async () => {
+  const prompts = $('#prompt').value.split('\n').map((s) => s.trim()).filter(Boolean);
+  if (!prompts.length) return toast('Typ eerst een prompt');
+  await api('/api/generate', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ prompts }) });
+  $('#prompt').value = ''; toast(prompts.length > 1 ? `${prompts.length} video's in de wachtrij` : 'Bot is begonnen!'); pollQueue();
+};
+$('#ideas').onclick = async () => {
+  const b = $('#ideas'); b.disabled = true; b.textContent = 'Claude denkt na…';
+  try { const r = await api('/api/ideas', { method:'POST', headers:{'content-type':'application/json'}, body:'{}' });
+    if (r.error) throw new Error(r.error);
+    $('#chips').innerHTML = r.ideas.map((i) => `<span class="chip">${esc(i)}</span>`).join('');
+    document.querySelectorAll('.chip').forEach((c) => c.onclick = () => { const v = $('#prompt').value.trim(); $('#prompt').value = (v ? v + '\n' : '') + c.textContent; });
+  } catch (e) { toast('Mislukt: ' + e.message); }
+  b.disabled = false; b.textContent = 'Geef me ideeën';
+};
+
+let lastDone = '';
+async function pollQueue() {
+  const q = await api('/api/queue');
+  const active = q.filter((j) => j.status === 'queued' || j.status === 'working' || (Date.now() - j.createdAt < 60e3 * 10 && j.status === 'error'));
+  $('#queueCard').style.display = active.length ? '' : 'none';
+  $('#queue').innerHTML = active.map((j) => {
+    const last = j.log[j.log.length - 1];
+    const pct = j.progress ? Math.round(j.progress.frame / j.progress.total * 100) : 0;
+    const status = j.status === 'queued' ? 'In de wachtrij' : j.status === 'error' ? `<span class="st-error">Fout: ${esc(j.error)}</span>` : `${esc(STEP[j.step] || j.step || '')} — ${esc(last?.msg || '')}${j.step === 'render' && j.progress ? ` · ${pct}% · nog ~${Math.round(j.progress.eta)}s` : ''}`;
+    return `<div class="job"><div class="t">${esc(j.prompt)}</div><div class="s">${status}</div>${j.status === 'working' ? `<div class="bar"><i style="width:${j.step === 'render' ? 20 + pct * 0.8 : ({premise:5,sources:8,check:12,fix:14,review:16}[j.step] || 4)}%"></i></div>` : ''}</div>`;
+  }).join('');
+  const doneKey = q.filter((j) => j.status === 'done').map((j) => j.jobId).join();
+  if (doneKey !== lastDone) { lastDone = doneKey; loadVideos(); }
+  if (q.some((j) => j.status === 'queued' || j.status === 'working')) setTimeout(pollQueue, 1500);
+}
+
+async function loadVideos() {
+  const vs = (await api('/api/videos')).filter((v) => v.status === 'done');
+  if (!vs.length) { $('#videos').innerHTML = '<div class="empty">Nog geen video\'s. Typ hierboven een "What if…?" en klik op Maak video.</div>'; return; }
+  $('#videos').innerHTML = vs.map((v) => `
+    <div class="vid" data-id="${esc(v.id)}">
+      <video src="/media/${esc(v.video)}" poster="/media/${esc(v.thumb)}" controls playsinline preload="none"></video>
+      <div class="body">
+        <div class="title">${esc(v.title)}</div>
+        <div class="meta">${new Date(v.createdAt).toLocaleString('nl-NL')} · ${v.duration || ''}s</div>
+        ${v.facts?.length ? `<details><summary>Bronnen</summary><ul>${v.facts.map((f) => `<li>${esc(f.text)} <i>(${esc(f.source)})</i></li>`).join('')}</ul></details>` : ''}
+        <div class="actions">
+          <a class="btn" href="/download/${encodeURIComponent(v.id)}">Download</a>
+          <button class="ghost small" data-act="copy">Kopieer tekst</button>
+          <button class="ghost small" data-act="live">Live</button>
+          <button class="ghost small" data-act="del">Verwijder</button>
+        </div>
+      </div>
+    </div>`).join('');
+  document.querySelectorAll('.vid').forEach((el) => {
+    const v = vs.find((x) => x.id === el.dataset.id);
+    el.querySelector('[data-act=copy]').onclick = () => { const t = `${v.tiktok?.description || v.title}\n\n${(v.tiktok?.hashtags || []).map((h) => '#' + String(h).replace(/^#/, '')).join(' ')}`; navigator.clipboard.writeText(t).then(() => toast('Beschrijving + hashtags gekopieerd')); };
+    el.querySelector('[data-act=live]').onclick = () => window.open(`/engine/index.html?preview=${encodeURIComponent(v.id)}`, '_blank');
+    el.querySelector('[data-act=del]').onclick = async () => { if (!confirm('Video verwijderen?')) return; await api(`/api/videos/${encodeURIComponent(v.id)}`, { method:'DELETE' }); loadVideos(); };
+  });
+}
+
+loadStatus(); loadVideos(); pollQueue();
+</script>
+</body>
+</html>

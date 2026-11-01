@@ -1,0 +1,23 @@
+{
+  "title": "What if Earth hit absolute zero for 5 seconds?",
+  "setting": "beach",
+  "time": "day",
+  "duration": 18,
+  "location": "SANTA MONICA · CALIFORNIA",
+  "camera": { "mode": "street", "height": 4 },
+  "mood": "dark",
+  "hud": [
+    { "label": "Temperature", "sub": "Santa Monica, California", "from": 72, "to": -459.67, "start": 4, "end": 5.2, "unit": "°F", "decimals": 2, "ease": "in", "show": [0.3, 18], "alertAfter": 4 }
+  ],
+  "effects": [
+    { "type": "freeze", "start": 4.2, "end": 10, "ramp": 1.0 },
+    { "type": "flash", "start": 4.2, "amount": 0.6 }
+  ],
+  "captions": [
+    { "text": "What if Earth hit absolute zero for 5 seconds?", "start": 0.2, "end": 4.2, "style": "title" },
+    { "text": "Earth just hit absolute zero.", "start": 5, "end": 8.5, "style": "subtitle" },
+    { "text": "The oxygen you breathe turns liquid.", "start": 8.7, "end": 11.8, "style": "subtitle" },
+    { "text": "Then the sun comes back.", "start": 12, "end": 15.5, "style": "subtitle" }
+  ],
+  "handle": "whatif.bot"
+}

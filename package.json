@@ -1,0 +1,17 @@
+{
+  "name": "whatif-tiktok-bot",
+  "version": "1.0.0",
+  "description": "Automatische 'What if...?' simulatie-video bot voor TikTok. Typ een prompt, Claude schrijft de scène, je computer rendert de video.",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "make": "node src/cli.js",
+    "setup": "npx playwright install chromium"
+  },
+  "dependencies": {
+    "playwright": "^1.50.0",
+    "three": "0.170.0"
+  },
+  "engines": { "node": ">=18" }
+}
