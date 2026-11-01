@@ -6,6 +6,7 @@ import path from 'node:path';
 import { chromium } from 'playwright';
 import { startEngineServer } from './static.js';
 import { buildAudio } from './audio.js';
+import { buildVoiceover } from './voice.js';
 
 const QUALITY = {
   draft: { pixelRatio: 0.5, shadows: false, jpeg: 80, crf: 26 },
@@ -60,7 +61,7 @@ export async function renderStills(spec, times, outDir, opts = {}) {
   } finally { await eng.close(); }
 }
 
-export async function renderVideo(spec, outFile, { quality = 'medium', fps = 30, onProgress = () => {}, audio = true } = {}) {
+export async function renderVideo(spec, outFile, { quality = 'medium', fps = 30, onProgress = () => {}, audio = true, voice = true, onLog = () => {} } = {}) {
   const eng = await openEngine(spec, { quality, fps });
   const tmpVideo = outFile.replace(/\.mp4$/, '.silent.mp4');
   try {
@@ -86,7 +87,19 @@ export async function renderVideo(spec, outFile, { quality = 'medium', fps = 30,
     if (audio) {
       const wav = outFile.replace(/\.mp4$/, '.wav');
       await buildAudio({ duration, effects: fxList, mood: spec.mood, out: wav });
-      await run('ffmpeg', ['-y', '-loglevel', 'error', '-i', tmpVideo, '-i', wav, '-c:v', 'copy', '-c:a', 'aac', '-b:a', '160k', '-shortest', '-movflags', '+faststart', outFile]);
+      let vo = null;
+      if (voice && spec.voiceover !== false) {
+        try { vo = await buildVoiceover(spec, path.join(path.dirname(outFile), 'vo'), duration); if (vo) onLog(`Voice-over ingesproken (${vo.engine})`); }
+        catch (e) { onLog(`Voice-over mislukt, video zonder stem: ${e.message}`); }
+      }
+      if (vo) {
+        // Music ducks automatically under the voice.
+        const fc = '[1:a]volume=0.55[m];[2:a]volume=1.6,asplit[v1][v2];[m][v1]sidechaincompress=threshold=0.02:ratio=10:attack=15:release=450[md];[md][v2]amix=inputs=2:normalize=0,alimiter=limit=0.95[a]';
+        await run('ffmpeg', ['-y', '-loglevel', 'error', '-i', tmpVideo, '-i', wav, '-i', vo.file, '-filter_complex', fc, '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', outFile]);
+        fs.rmSync(path.dirname(vo.file), { recursive: true, force: true });
+      } else {
+        await run('ffmpeg', ['-y', '-loglevel', 'error', '-i', tmpVideo, '-i', wav, '-c:v', 'copy', '-c:a', 'aac', '-b:a', '160k', '-shortest', '-movflags', '+faststart', outFile]);
+      }
       fs.rmSync(wav, { force: true }); fs.rmSync(tmpVideo, { force: true });
     } else fs.renameSync(tmpVideo, outFile);
     return { outFile, errors, frames: total, seconds: (Date.now() - started) / 1000 };

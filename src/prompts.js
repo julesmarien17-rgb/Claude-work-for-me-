@@ -25,8 +25,17 @@ SPEC FORMAT (all times in seconds):
     { "text": "What if ...?", "start": 0.2, "end": 4.2, "style": "title" },
     { "text": "Short punchy fact.", "start": 5, "end": 8.5, "style": "subtitle" }
   ],
-  "endcard": { "start": 17, "text": "Part 2?", "cta": "Follow for part 2" }   // optional
+  "endcard": { "start": 17, "text": "Part 2?", "cta": "Follow for part 2" },  // optional
+  "language": "en|nl|be|de|fr|es",       // language of captions + voice-over (same as the user's prompt)
+  "voice": { "gender": "male|female" },
+  "voiceover": [ // spoken narration, like a documentary narrator. One line per beat, timed to the captions.
+    { "start": 0.3, "text": "What if all rubber on Earth disappeared for five seconds?" },
+    { "start": 4.6, "text": "Instantly, every tire is gone." }
+  ]
 }
+VOICE-OVER RULES: speech runs ~2.7 words per second, so each line must finish before the next line's start
+(a 3 s gap fits ~8 words). Write numbers as words when they are hard to read aloud ("minus four hundred fifty-nine degrees").
+The narration may say a bit more than the caption, but never contradict it. Last line = the twist / cliffhanger.
 
 EFFECTS (common fields: type, start, end (optional), ramp (fade seconds, default 0.8), revert (bool; default true when end < duration), intensity 0-1):
 - freeze: everything frosts over, motion stops, ocean freezes. {}

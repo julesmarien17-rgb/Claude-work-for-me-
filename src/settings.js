@@ -12,7 +12,7 @@ if (fs.existsSync(envFile)) {
 }
 
 const FILE = path.join(DATA_DIR, 'settings.json');
-const DEFAULTS = { handle: 'whatif.bot', quality: 'medium', selfReview: true };
+const DEFAULTS = { handle: 'whatif.bot', quality: 'medium', selfReview: true, voiceover: true };
 
 export function loadSettings() {
   try { return { ...DEFAULTS, ...JSON.parse(fs.readFileSync(FILE, 'utf8')) }; } catch { return { ...DEFAULTS }; }

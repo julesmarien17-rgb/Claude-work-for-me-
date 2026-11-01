@@ -88,7 +88,7 @@ export async function makeVideo(prompt, o = {}) {
     step('render', `Video renderen (${quality})…`);
     const out = path.join(dir, 'video.mp4');
     const res = await renderVideo(spec, out, {
-      quality,
+      quality, voice: settings.voiceover !== false, onLog: (m) => step('voice', m),
       onProgress: (p) => { meta.progress = p; if (o.onProgress) o.onProgress(p); if (p.frame % 60 === 1) writeMeta(dir, meta); },
     });
     await makeThumbnail(out, path.join(dir, 'thumb.jpg'), Math.min(spec.duration ?? 18, 6.5));

@@ -61,6 +61,15 @@ npm run make -- --spec examples/rubber.json      # zonder Claude, met een vaste 
 
 Alle video's komen in `output/<datum-titel>/video.mp4`. Daar staan ook `spec.json` (de scène-code) en `meta.json` (bronnen en TikTok-tekst).
 
+## Voice-over
+
+Elke video krijgt automatisch een vertelstem. Claude schrijft de tekst mee in de scène (veld `voiceover`), getimed op de ondertitels. De muziek wordt automatisch zachter wanneer de stem praat.
+
+- Standaard gebruikt de bot de gratis neurale stemmen van Microsoft (internet nodig, geen account). De bot kiest een stem die bij de taal van je prompt past: Engels → *Andrew*, Nederlands → *Maarten*, Vlaams → *Arnaud*. Er is dus geen buitenlands accent.
+- Een vrouwenstem kies je met `"voice": { "gender": "female" }` in de spec, of voor alles met `TTS_VOICE=nl-NL-FennaNeural` in `.env`.
+- Uitzetten kan bij **Instellingen → Voice-over** in de app.
+- Andere stemmen (optioneel, in `.env`): `ELEVENLABS_API_KEY=…` voor ElevenLabs of `TTS_ENGINE=openai` + `OPENAI_API_KEY=…`. Zonder internet valt de bot terug op de stemmen van je Mac (`say`) of op espeak.
+
 ## Instellingen (.env, optioneel)
 
 ```
