@@ -4,7 +4,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { makeVideo, listVideos, suggestIdeas } from './pipeline.js';
+import { makeVideo, listVideos, suggestIdeas, researchPrompts } from './pipeline.js';
 import { loadSettings, saveSettings } from './settings.js';
 import { ROOT, OUTPUT_DIR, sendFile, safeJoin, serveEngine } from './static.js';
 import { backend } from './claude.js';
@@ -61,6 +61,7 @@ const server = http.createServer(async (req, res) => {
       const jobs = b.spec ? [addJob(b.spec.title || 'Eigen spec', b.spec)] : prompts.map((pr) => addJob(pr));
       return json(res, 200, jobs.map(({ spec, ...j }) => j));
     }
+    if (p === '/api/research' && req.method === 'POST') { const b = await body(req); return json(res, 200, await researchPrompts(String(b.topic || ''), b.lang === 'nl' ? 'nl' : 'en')); }
     if (p === '/api/ideas' && req.method === 'POST') { const b = await body(req); return json(res, 200, { ideas: await suggestIdeas(b.n || 8) }); }
     if (p === '/api/settings') {
       if (req.method === 'POST') return json(res, 200, saveSettings(await body(req)));

@@ -117,3 +117,24 @@ They must be visualisable in a 3D street/beach/city/highway/park/desert/snow/har
 ${pastTitles.map((t) => '- ' + t).join('\n') || '(none)'}
 Reply with ONLY JSON: { "ideas": ["What if ...?", ...] }`;
 }
+
+export function researchPrompt(topic, lang, pastTitles) {
+  return `You are the researcher for a TikTok account that posts 3D "What if...?" simulation videos.
+${topic ? `Topic to explore: """${topic}"""` : 'No topic given: find what is trending right now in "what if" / science / "how things work" videos.'}
+
+1. SEARCH the web (use your web search tool several times) for existing videos on YouTube, YouTube Shorts and TikTok
+   (e.g. queries like "what if ${topic || 'science'} youtube", "what if ${topic || ''} tiktok", "how does ${topic || 'it'} work video"),
+   and for "how things work" explainers on the topic. Note which what-if questions have already been done a lot.
+2. Find ANGLES THAT ARE NOT DONE YET (or barely): surprising, visual, scientifically grounded, and showable in a 3D
+   street / beach / city / highway / park / desert / snow / harbor scene.
+3. Turn each angle into ONE short prompt for the video bot (max ~12 words, starts with "What if" ${lang === 'nl' ? 'but written in Dutch ("Wat als ...?")' : 'in English'}).
+Avoid these, our account already did them:
+${pastTitles.map((t) => '- ' + t).join('\n') || '(none)'}
+
+Reply with ONLY JSON:
+{
+  "covered": [ { "title": "existing video / question", "platform": "YouTube|TikTok|Web", "url": "https://..." } ],
+  "prompts": [ { "prompt": "What if ...?", "why": "one short line: why it's fresh / what it shows", "fresh": true } ]
+}
+Give 6-10 prompts (fresh ones first) and up to 8 covered items with real URLs from your searches.`;
+}

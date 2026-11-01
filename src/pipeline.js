@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { askClaude, extractJson } from './claude.js';
-import { planPrompt, fixPrompt, reviewPrompt, ideasPrompt } from './prompts.js';
+import { planPrompt, fixPrompt, reviewPrompt, ideasPrompt, researchPrompt } from './prompts.js';
 import { renderStills, renderVideo, makeThumbnail } from './render.js';
 import { OUTPUT_DIR } from './static.js';
 import { loadSettings } from './settings.js';
@@ -113,4 +113,11 @@ function keyTimes(spec) {
 export async function suggestIdeas(n = 8) {
   const past = listVideos().map((v) => v.title).filter(Boolean).slice(0, 60);
   return extractJson(await askClaude(ideasPrompt(n, past))).ideas || [];
+}
+
+// Prompt maker: searches YouTube/TikTok/web for what already exists and returns fresh short prompts.
+export async function researchPrompts(topic = '', lang = 'en') {
+  const past = listVideos().map((v) => v.title).filter(Boolean).slice(0, 60);
+  const r = extractJson(await askClaude(researchPrompt(topic.trim(), lang, past), { web: true, timeoutMs: 420000 }));
+  return { covered: Array.isArray(r.covered) ? r.covered : [], prompts: Array.isArray(r.prompts) ? r.prompts : [] };
 }

@@ -11,15 +11,16 @@ export function backend() {
   return 'cli';
 }
 
-export async function askClaude(prompt, { images = [], timeoutMs = 240000 } = {}) {
-  return backend() === 'api' ? askApi(prompt, images) : askCli(prompt, images, timeoutMs);
+export async function askClaude(prompt, { images = [], timeoutMs = 240000, web = false } = {}) {
+  return backend() === 'api' ? askApi(prompt, images, web) : askCli(prompt, images, timeoutMs, web);
 }
 
-function askCli(prompt, images, timeoutMs) {
+function askCli(prompt, images, timeoutMs, web) {
   return new Promise((resolve, reject) => {
     const args = ['-p', '--output-format', 'text'];
     if (process.env.CLAUDE_MODEL) args.push('--model', process.env.CLAUDE_MODEL);
     let full = prompt;
+    if (web) args.push('--allowedTools', 'WebSearch,WebFetch');
     if (images.length) {
       args.push('--allowedTools', 'Read');
       full += `\n\nUse the Read tool to look at these rendered frames before answering:\n${images.map((f) => '- ' + f).join('\n')}`;
@@ -34,7 +35,7 @@ function askCli(prompt, images, timeoutMs) {
   });
 }
 
-async function askApi(prompt, images) {
+async function askApi(prompt, images, web) {
   const fs = await import('node:fs');
   const content = [];
   for (const f of images) content.push({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: fs.readFileSync(f).toString('base64') } });
@@ -42,7 +43,7 @@ async function askApi(prompt, images) {
   const r = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({ model: API_MODEL, max_tokens: 8000, messages: [{ role: 'user', content }] }),
+    body: JSON.stringify({ model: API_MODEL, max_tokens: 8000, messages: [{ role: 'user', content }], ...(web ? { tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 10 }] } : {}) }),
   });
   const j = await r.json();
   if (!r.ok) throw new Error(`Anthropic API: ${j.error?.message || r.status}`);

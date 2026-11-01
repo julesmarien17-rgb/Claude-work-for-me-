@@ -44,7 +44,8 @@ Open daarna **http://localhost:3000**.
 **Buiten je wifi (overal):** de makkelijkste manier is een gratis tunnel, bijvoorbeeld `npx localtunnel --port 3000` of [Tailscale](https://tailscale.com). Je computer moet dan wel aan blijven staan, want die rendert de video's.
 
 - Typ een "What if…?" en klik op **Maak video**. Wil je meerdere video's? Zet dan elke prompt op een eigen regel.
-- **Geef me ideeën**: Claude bedenkt nieuwe virale onderwerpen. Klik er een aan om hem toe te voegen.
+- **Geef me ideeën**: Claude bedenkt snel een paar nieuwe onderwerpen.
+- **Promptmaker**: typ een onderwerp (of laat het leeg). Claude zoekt **live op YouTube, TikTok en uitlegsites** wat er al gemaakt is en geeft je korte prompts over wat **nog niet gedaan** is, met een link naar wat al bestaat. Met **Gebruik** zet je de prompt in het invulveld. Duurt 1 à 3 minuten.
 - Onder **Mijn video's** kun je elke video bekijken, en:
   - **Download**: sla de MP4 op en upload hem zelf op TikTok.
   - **Kopieer tekst**: kopieer de beschrijving met hashtags, klaar om te plakken.

@@ -41,6 +41,11 @@
   .settings { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; }
   label { font-size:13px; color:var(--muted); display:block; margin-bottom:4px; }
   .empty { color:var(--muted); text-align:center; padding:30px; }
+  .pm { display:flex; gap:10px; align-items:flex-start; border-top:1px solid var(--line); padding:12px 0; }
+  .pm:first-child { border-top:0; }
+  .pm .txt { flex:1; min-width:0; } .pm .p { font-weight:700; font-size:16px; } .pm .w { color:var(--muted); font-size:13px; }
+  .tag { font-size:11px; font-weight:800; padding:2px 8px; border-radius:999px; background:#173a2e; color:var(--ok); margin-left:6px; vertical-align:middle; }
+  .covered { font-size:13px; color:var(--muted); margin-top:12px; } .covered a { color:var(--text); }
   .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--accent); color:#111; padding:10px 18px; border-radius:999px; font-weight:700; opacity:0; transition:opacity .3s; pointer-events:none; }
   .toast.on { opacity:1; }
 </style>
@@ -61,6 +66,17 @@
       <span class="hint">Eén zin is genoeg. Claude checkt het idee, zoekt bronnen, schrijft de scène, controleert de frames en je computer rendert de video.</span>
     </div>
     <div class="chips" id="chips"></div>
+  </div>
+
+  <div class="card">
+    <h2>Promptmaker</h2>
+    <p class="hint" style="margin:0 0 10px">Claude zoekt op YouTube, TikTok en uitlegsites wat er al gemaakt is en geeft je korte prompts over wat nog niet gedaan is. Duurt 1 à 3 minuten.</p>
+    <div class="row" style="margin-top:0">
+      <input id="topic" placeholder="Onderwerp (optioneel), bv. vulkanen, de zon, het internet, zwaartekracht…" style="flex:1;min-width:220px">
+      <select id="lang" style="width:auto"><option value="en">Engels</option><option value="nl">Nederlands</option></select>
+      <button id="research">Zoek &amp; maak prompts</button>
+    </div>
+    <div id="researchOut"></div>
   </div>
 
   <div class="card" id="queueCard" style="display:none">
@@ -113,6 +129,23 @@ $('#ideas').onclick = async () => {
     document.querySelectorAll('.chip').forEach((c) => c.onclick = () => { const v = $('#prompt').value.trim(); $('#prompt').value = (v ? v + '\n' : '') + c.textContent; });
   } catch (e) { toast('Mislukt: ' + e.message); }
   b.disabled = false; b.textContent = 'Geef me ideeën';
+};
+
+$('#research').onclick = async () => {
+  const b = $('#research'); b.disabled = true; b.textContent = 'Claude zoekt…';
+  $('#researchOut').innerHTML = '<p class="hint">Bezig met zoeken op YouTube, TikTok en het web…</p>';
+  try {
+    const r = await api('/api/research', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ topic: $('#topic').value, lang: $('#lang').value }) });
+    if (r.error) throw new Error(r.error);
+    $('#researchOut').innerHTML = `<div style="margin-top:12px">${r.prompts.map((x, i) => `
+      <div class="pm"><div class="txt"><div class="p">${esc(x.prompt)}${x.fresh !== false ? '<span class="tag">NOG NIET GEDAAN</span>' : ''}</div><div class="w">${esc(x.why || '')}</div></div>
+      <button class="small" data-use="${i}">Gebruik</button></div>`).join('')}</div>
+      ${r.covered.length ? `<details class="covered"><summary>Bestaat al (${r.covered.length})</summary><ul>${r.covered.map((c) => `<li>${esc(c.platform || '')}: ${/^https?:/.test(c.url || '') ? `<a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.title)}</a>` : esc(c.title)}</li>`).join('')}</ul></details>` : ''}`;
+    document.querySelectorAll('[data-use]').forEach((btn) => btn.onclick = () => {
+      $('#prompt').value = r.prompts[+btn.dataset.use].prompt; $('#prompt').focus(); window.scrollTo({ top: 0, behavior: 'smooth' }); toast('Prompt ingevuld, klik op Maak video');
+    });
+  } catch (e) { $('#researchOut').innerHTML = `<p class="hint" style="color:var(--bad)">Mislukt: ${esc(e.message)}</p>`; }
+  b.disabled = false; b.textContent = 'Zoek & maak prompts';
 };
 
 let lastDone = '';
