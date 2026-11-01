@@ -37,7 +37,7 @@ EFFECTS (common fields: type, start, end (optional), ramp (fade seconds, default
 - darkness: sun goes out, city lights on, stars. { "powerOut": false }
 - power_out: all windows, billboards and street lights go dark.
 - flood: water rises, cars & people float. { "height": 6, "color": "#2d7fa6", "liquid": "water|lava", "current": 1.2 }
-- giant_object: big body in the sky. { "shape": "moon|planet|sun|black_hole|cube", "size": 0.35, "elevation": 0.32, "side": 0.15,
+- giant_object: big body in the sky. { "shape": "moon|planet|sun|black_hole|cube", "size": 0.05-0.4 (0.3 = huge), "elevation": 0.32, "side": 0.15,
     "approach": false, "tides": 0, "shake": 0, "pull": 0, "rings": false, "hue": 30, "color": "#d4d2c8" }
 - meteor: asteroid streaks down and impacts (start = impact time; it falls during the 2.2 s before). { "size": 6, "distance": 160, "side": 0.25 }
 - earthquake: shaking, buildings sway. { "strength": 1, "collapse": 0.3 }

@@ -500,6 +500,7 @@ class Sim {
       pos = new THREE.Vector3(o[0] + (c.offsetX ?? 0) + Math.sin(T * 0.3) * 0.25, h + Math.sin(T * 0.7) * 0.05, o[2] + 26 - T * 1.2);
       look = new THREE.Vector3(o[0] + (c.lookX ?? 0), h + 4.5, pos.z - 60);
     }
+    if (this.floodLevel != null) { const minY = this.floodLevel + 1.6; if (pos.y < minY) { look.y += minY - pos.y; pos.y = minY; } }
     const sh = this.shake;
     if (sh > 0) { const n = (k) => Math.sin(t * 37 + k) * 0.6 + Math.sin(t * 23 + k * 3) * 0.4; pos.x += n(1) * sh; pos.y += n(2) * sh * 0.6; pos.z += n(3) * sh * 0.4; look.x += n(4) * sh * 0.5; }
     this.camera.position.copy(pos); this.camera.lookAt(look);
@@ -520,7 +521,7 @@ class Sim {
       tint: col('#ffffff'), tintAmt: 0, glow: b.glow, billboard: 1, lamps: this.spec.time === 'night' ? 1 : this.spec.time === 'sunset' ? 0.5 : 0, stars: b.stars, sunColor: col(b.sun), sunSize: 1, sunVis: this.spec.time === 'night' ? 0 : 1,
       exposure: b.exposure, filter: [], gradeColor: null, gradeAmt: 0, flash: 0, waveMul: 1, waterColor: this.water?.color.clone(), waterOffset: 0,
     };
-    this.shake = 0; this.timeScale = 1; this.wind = 0; this.windDir = new THREE.Vector3(1, 0, 0);
+    this.shake = 0; this.floodLevel = null; this.timeScale = 1; this.wind = 0; this.windDir = new THREE.Vector3(1, 0, 0);
     this.gravityScale = 1;
     // effects
     for (const fx of this.fx) {
@@ -932,6 +933,7 @@ const FX = {
     },
     update(sim, fx, k, t, dt) {
       const h = fx.height ?? 6, y = lerp(-1, h, k);
+      sim.floodLevel = Math.max(sim.floodLevel ?? -1, y);
       fx._mesh.position.y = y; fx._mesh.position.x = sim.camera.position.x; fx._mesh.position.z = sim.camera.position.z - 300;
       const pa = fx._mesh.geometry.attributes.position.array, b = fx._base;
       for (let i = 0; i < pa.length; i += 3) pa[i + 1] = Math.sin(b[i] * 0.05 + t * 1.6) * 0.3 + Math.sin(b[i + 2] * 0.07 + t * 1.2) * 0.25;
@@ -965,7 +967,7 @@ const FX = {
         mesh = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.4, 1.4), new THREE.MeshStandardMaterial({ color: col(fx.color || '#888888'), fog: false, roughness: 0.6 }));
       } else {
         const tex = shape === 'planet' || shape === 'jupiter' ? planetTexture(r, fx.hue ?? 30) : shape === 'sun' ? null : moonTexture(r, fx.color || '#d4d2c8');
-        const m = shape === 'sun' ? new THREE.MeshBasicMaterial({ color: col(fx.color || '#fff2c0'), fog: false }) : new THREE.MeshStandardMaterial({ map: tex, color: col(tex ? '#ffffff' : fx.color || '#cccccc'), fog: false, roughness: 1 });
+        const m = shape === 'sun' ? new THREE.MeshBasicMaterial({ color: col(fx.color || '#fff2c0'), fog: false }) : new THREE.MeshStandardMaterial({ map: tex, color: col(tex ? '#ffffff' : fx.color || '#cccccc'), emissive: col('#ffffff'), emissiveMap: tex, emissiveIntensity: 0.55, fog: false, roughness: 1 });
         mesh = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 32), m);
         if (shape === 'planet' && fx.rings) { const rg = new THREE.Mesh(new THREE.RingGeometry(1.4, 2.3, 64), new THREE.MeshBasicMaterial({ color: col('#e8d3a8'), side: THREE.DoubleSide, transparent: true, opacity: 0.7, fog: false })); rg.rotation.x = 1.3; mesh.add(rg); }
       }
@@ -978,7 +980,7 @@ const FX = {
       const cam = sim.camera.position, fwd = new THREE.Vector3(0, 0, -1);
       const dist = 1600, elev = fx.elevation ?? 0.32, side = fx.side ?? 0.15;
       const dir = new THREE.Vector3(side, elev, -1).normalize();
-      const sizeEnd = fx.size ?? 0.35; // fraction of distance
+      const sizeEnd = clamp(fx.size ?? 0.3, 0.03, 0.42); // fraction of distance (capped so it never swallows the camera)
       const grow = fx.approach ? lerp(0.05, 1, k) : 1;
       m.position.copy(cam).addScaledVector(dir, fx.approach ? lerp(dist, dist * 0.6, k) : dist);
       m.scale.setScalar(dist * sizeEnd * grow * (fx.approach ? 1 : smooth(k / Math.max(0.001, fx.intensity ?? 1)) * 0.3 + 0.7));
