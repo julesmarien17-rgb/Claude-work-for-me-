@@ -980,10 +980,11 @@ const FX = {
       const cam = sim.camera.position, fwd = new THREE.Vector3(0, 0, -1);
       const dist = 1600, elev = fx.elevation ?? 0.32, side = fx.side ?? 0.15;
       const dir = new THREE.Vector3(side, elev, -1).normalize();
-      const sizeEnd = clamp(fx.size ?? 0.3, 0.03, 0.42); // fraction of distance (capped so it never swallows the camera)
-      const grow = fx.approach ? lerp(0.05, 1, k) : 1;
-      m.position.copy(cam).addScaledVector(dir, fx.approach ? lerp(dist, dist * 0.6, k) : dist);
-      m.scale.setScalar(dist * sizeEnd * grow * (fx.approach ? 1 : smooth(k / Math.max(0.001, fx.intensity ?? 1)) * 0.3 + 0.7));
+      // size = radius as a fraction of distance (0.2 ≈ 23° wide). Capped so it never fills the whole sky.
+      const sizeEnd = clamp(fx.size ?? 0.15, 0.02, 0.22);
+      const grow = fx.approach ? lerp(0.08, 1, k) : smooth(k / Math.max(0.001, fx.intensity ?? 1)) * 0.3 + 0.7;
+      m.position.copy(cam).addScaledVector(dir, dist);
+      m.scale.setScalar(dist * sizeEnd * grow);
       m.rotation.y = t * 0.02;
       if (fx._ring) { fx._ring.rotation.z = t * 0.5; fx._halo.lookAt(cam); }
       if (fx.shape === 'black_hole') { sim.look.top.lerp(col('#05040a'), k * 0.7); sim.look.bottom.lerp(col('#2a1a3a'), k * 0.5); sim.look.sunI *= 1 - 0.5 * k; sim.wind = Math.max(sim.wind, (fx.pull ?? 0) * k); }

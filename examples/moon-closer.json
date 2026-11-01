@@ -4,7 +4,7 @@
   "time": "sunset",
   "weather": "clear",
   "duration": 20,
-  "location": "PORT OF HALIFAX · NOVA SCOTIA",
+  "location": "PORT OF HALIFAX \u00b7 NOVA SCOTIA",
   "camera": {
     "mode": "drone",
     "height": 14,
@@ -54,7 +54,7 @@
       "start": 3.8,
       "ramp": 3.5,
       "shape": "moon",
-      "size": 0.5,
+      "size": 0.16,
       "elevation": 0.42,
       "side": -0.05,
       "approach": true,
@@ -131,7 +131,7 @@
       "style": "subtitle"
     },
     {
-      "text": "But the ground has tides too…",
+      "text": "But the ground has tides too\u2026",
       "start": 15.6,
       "end": 18.6,
       "style": "subtitle"
