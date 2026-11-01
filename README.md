@@ -39,6 +39,10 @@ npm start
 
 Open daarna **http://localhost:3000**.
 
+**Op je telefoon of tablet:** het venster toont ook een adres zoals `http://192.168.1.23:3000`. Open dat op je telefoon (die moet op dezelfde wifi zitten). Daar kun je prompts typen, video's bekijken en ze downloaden, en vanaf je telefoon zet je ze direct op TikTok. Vraagt je computer of Node verbindingen mag ontvangen? Klik dan op Toestaan.
+
+**Buiten je wifi (overal):** de makkelijkste manier is een gratis tunnel, bijvoorbeeld `npx localtunnel --port 3000` of [Tailscale](https://tailscale.com). Je computer moet dan wel aan blijven staan, want die rendert de video's.
+
 - Typ een "What if…?" en klik op **Maak video**. Wil je meerdere video's? Zet dan elke prompt op een eigen regel.
 - **Geef me ideeën**: Claude bedenkt nieuwe virale onderwerpen. Klik er een aan om hem toe te voegen.
 - Onder **Mijn video's** kun je elke video bekijken, en:

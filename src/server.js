@@ -3,6 +3,7 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import { makeVideo, listVideos, suggestIdeas } from './pipeline.js';
 import { loadSettings, saveSettings } from './settings.js';
 import { ROOT, OUTPUT_DIR, sendFile, safeJoin, serveEngine } from './static.js';
@@ -73,6 +74,10 @@ const server = http.createServer(async (req, res) => {
   } catch (e) { console.error(e); json(res, 500, { error: e.message }); }
 });
 
-server.listen(PORT, () => {
-  console.log(`\n  What-If TikTok bot draait op  http://localhost:${PORT}\n  Claude via: ${backend() === 'api' ? 'Anthropic API (ANTHROPIC_API_KEY)' : 'Claude Code CLI (jouw Claude-abonnement)'}\n`);
+// Listen on all network interfaces so phones/tablets on the same Wi-Fi can open it too.
+server.listen(PORT, '0.0.0.0', () => {
+  const lan = Object.values(os.networkInterfaces()).flat().filter((i) => i && i.family === 'IPv4' && !i.internal).map((i) => `http://${i.address}:${PORT}`);
+  console.log(`\n  What-If TikTok bot draait!\n  Op deze computer:      http://localhost:${PORT}`);
+  for (const u of lan) console.log(`  Op je telefoon/tablet: ${u}   (zelfde wifi)`);
+  console.log(`  Claude via: ${backend() === 'api' ? 'Anthropic API (ANTHROPIC_API_KEY)' : 'Claude Code CLI (jouw Claude-abonnement)'}\n`);
 });
