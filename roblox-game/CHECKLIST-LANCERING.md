@@ -24,7 +24,7 @@ Open het project (HANDLEIDING.md, stap 2) en zet eerst aan: **Game Settings > Se
    - [ ] Stap op een rode knop (te weinig geld): je krijgt een melding en NIETS wordt gekocht.
    - [ ] Probeer "Rebirth" zonder Rocket Delivery Pad: het knopje zegt "Locked".
    - [ ] Geef je bakkerij een naam van 1 letter: je krijgt een melding en de naam verandert niet.
-   - [ ] Zet in `src/server/Config/AdminConfig.luau` tijdelijk `AdminInStudio = false` (en laat UserIds leeg). Typ `/event GoldenHour`: je krijgt "only for admins" en de Admin-knop is weg. Zet het daarna terug op `true`.
+   - [ ] Zet in `src/server/Config/AdminConfig.luau` tijdelijk `AdminInStudio = false` en `IncludeGameOwner = false` (en laat UserIds leeg). Typ `/event GoldenHour`: je krijgt "only for admins" en de Admin-knop is weg. Zet beide daarna terug op `true`.
 4. **Testaankopen** (ID's nog 0 = gratis testknop "Test R$...")
    - [ ] Shop > Passes > 2x Cash Forever: het inkomen verdubbelt.
    - [ ] Shop > Extras > Bag of Coins: je krijgt geld, en de melding toont hoeveel.
