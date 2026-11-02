@@ -1,0 +1,5 @@
+# Tijdelijke bouwbestanden (maak je opnieuw met: rojo build -o build/SkyBakeryTycoon.rbxl)
+build/
+*.rbxl.lock
+*.rbxlx.lock
+# Back-ups van je game bewaar je WEL: zet ze in de map backups/
