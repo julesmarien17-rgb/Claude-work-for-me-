@@ -50,7 +50,7 @@ Open daarna **http://localhost:3000**.
   - **Download**: sla de MP4 op en upload hem zelf op TikTok.
   - **Kopieer tekst**: kopieer de beschrijving met hashtags, klaar om te plakken.
   - **Live**: speel de 3D-scène live af in je browser.
-- Bij **Instellingen** zet je je TikTok-naam (het watermerk in de video), de kwaliteit, de minimale lengte (standaard 23 seconden), de voice-over en de zelfcontrole.
+- Bij **Instellingen** zet je je TikTok-naam (het watermerk in de video), de kwaliteit, het doel (viraal of geld verdienen), de minimale lengte (standaard 23 seconden), de voice-over en de zelfcontrole.
 
 Via de terminal:
 
@@ -60,6 +60,17 @@ npm run make -- --spec examples/rubber.json      # zonder Claude, met een vaste 
 ```
 
 Alle video's komen in `output/<datum-titel>/video.mp4`. Daar staan ook `spec.json` (de scène-code) en `meta.json` (bronnen en TikTok-tekst).
+
+## Geld verdienen met je video's
+
+De bot maakt de video's, maar het geld komt van de platforms. Zo pak je het aan:
+
+1. **Zet bij Instellingen → Doel op "💰 Geld verdienen (61+ s)".** TikTok betaalt via het **Creator Rewards Program** alleen voor video's van **langer dan 1 minuut**. In deze modus schrijft Claude een langere mini-documentaire met tijdsprongen ("1 uur later…", "1 jaar later…") en een re-hook halverwege, zodat mensen blijven kijken. Renderen duurt ongeveer twee keer zo lang.
+2. **Eerst groeien.** Voor Creator Rewards heb je (bij het schrijven) ongeveer nodig: 18+, **10.000 volgers** en **100.000 views in de laatste 30 dagen**, en het programma moet in jouw land beschikbaar zijn. Controleer de actuele regels in de TikTok-app (Profiel → ☰ → TikTok Studio → Monetisatie); ze veranderen regelmatig. Zolang je die drempel niet haalt, kun je ook korte video's (23–32 s) mixen om sneller te groeien.
+3. **Post vaak en vast.** 1 à 3 video's per dag. Zet meerdere prompts onder elkaar in de app, dan maakt de bot ze achter elkaar, bijvoorbeeld 's nachts.
+4. **Dezelfde video op meer plekken.** Upload hem ook als **YouTube Short** (YouTube Partner Program: 1.000 abonnees + 10 miljoen Shorts-views in 90 dagen) en als **Instagram Reel**. Eén keer renderen, drie keer kansen.
+5. **Regels die je uitbetaling beschermen:** de video's zijn je eigen gerenderde werk (geen gekopieerde clips), gebruik geen muziek waarop rechten rusten, en zet bij het uploaden het label voor door AI gemaakte content aan als TikTok erom vraagt. Klopt een getal niet, dan wordt het in de reacties afgebrand: laat de bronnen (in `meta.json`) staan.
+6. **Extra inkomsten** zodra je een publiek hebt: TikTok Shop-affiliate (bijv. telescopen of science-kits bij ruimtevideo's), merkdeals via TikTok One, of op maat gemaakte "what if"-video's verkopen aan bedrijven en scholen.
 
 ## Voice-over
 

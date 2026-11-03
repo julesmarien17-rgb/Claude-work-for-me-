@@ -47,7 +47,7 @@ export async function makeVideo(prompt, o = {}) {
       // 1+2+3: premise check, sources, scene
       step('premise', 'Claude checkt het idee, zoekt bronnen en schrijft de scène…');
       const past = listVideos().filter((v) => v.id !== id && v.title).map((v) => v.title).slice(0, 40);
-      plan = extractJson(await askClaude(planPrompt(prompt, past)));
+      plan = extractJson(await askClaude(planPrompt(prompt, past, settings.minDuration)));
       if (!plan.spec) throw new Error('Claude gaf geen scene spec terug');
       step('premise', `${plan.premise?.verdict === 'twist' ? 'Nieuwe twist: ' : 'Idee OK: '}${plan.premise?.note || ''}`);
       if (plan.facts?.length) step('sources', plan.facts.map((f) => `${f.text} (${f.source})`).join(' | '));
@@ -67,14 +67,14 @@ export async function makeVideo(prompt, o = {}) {
       if (errors.length) {
         if (o.spec || attempt === 2) { step('check', `Waarschuwing: ${errors.join('; ')}`); break; }
         step('fix', `Fout gevonden, Claude repareert: ${errors[0]}`);
-        spec = extractJson(await askClaude(fixPrompt(spec, errors)));
+        spec = extractJson(await askClaude(fixPrompt(spec, errors, settings.minDuration)));
         spec.handle = spec.handle || settings.handle;
         continue;
       }
       if (review && !o.spec && attempt === 0) {
         step('review', 'Claude bekijkt de eigen frames…');
         try {
-          const rv = extractJson(await askClaude(reviewPrompt(spec), { images: files }));
+          const rv = extractJson(await askClaude(reviewPrompt(spec, settings.minDuration), { images: files }));
           if (!rv.ok && rv.spec) { step('fix', `Verbeterd: ${(rv.issues || []).join('; ')}`); spec = rv.spec; spec.handle = spec.handle || settings.handle; continue; }
           step('review', `Goedgekeurd${rv.issues?.length ? ' (' + rv.issues.join('; ') + ')' : ''}`);
         } catch (e) { step('review', 'Review overgeslagen: ' + e.message); }
@@ -122,7 +122,7 @@ function keyTimes(spec) {
   const ts = new Set([1]);
   for (const f of spec.effects || []) { const s = Number(f.start) || 0; ts.add(Math.min(d - 0.5, s + 1.5)); }
   ts.add(Math.max(1, d - 2));
-  return [...ts].sort((a, b) => a - b).slice(0, 4);
+  return [...ts].sort((a, b) => a - b).slice(0, d >= 55 ? 6 : 4);
 }
 
 export async function suggestIdeas(n = 8) {

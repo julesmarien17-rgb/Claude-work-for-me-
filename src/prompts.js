@@ -1,6 +1,10 @@
 // Prompt templates that teach Claude the scene-spec format.
 
-export const SPEC_DOC = `
+// Long videos (>= 55 s) are written as a longer story, so they qualify for TikTok's Creator Rewards (videos over 1 minute).
+export const isLong = (min) => Number(min) >= 55;
+const lenRange = (min) => (isLong(min) ? `${Math.ceil(min)}-${Math.ceil(min) + 14}` : `${Math.max(24, Math.ceil(min))}-${Math.max(32, Math.ceil(min) + 8)}`);
+
+export const specDoc = (min = 23) => `
 You write JSON "scene specs" for a 3D "What if...?" simulation engine (Three.js). The engine builds
 a stylised low-poly world and plays a timeline of effects. Output is a vertical 9:16 TikTok video.
 
@@ -10,7 +14,7 @@ SPEC FORMAT (all times in seconds):
   "setting": "city|beach|suburb|highway|park|desert|snow|harbor",
   "time": "day|sunset|night",
   "weather": "clear|rain|snow|ash|sand|confetti|embers|fireflies",   // optional ambient weather
-  "duration": 24-32,                     // MINIMUM 23 seconds; 25-28 is ideal (build-up, effect, consequences, twist)
+  "duration": ${lenRange(min)},                     // MINIMUM ${min} seconds (build-up, effect, consequences, twist)
   "location": "TIMES SQUARE · NEW YORK", // small caps label, real-sounding place that fits the setting
   "camera": { "mode": "street|aerial|orbit|drone|low|static", "height": 3, "speed": 1 },
   "mood": "tense|wonder|dark",           // soundtrack
@@ -20,12 +24,12 @@ SPEC FORMAT (all times in seconds):
       "unit": "°F", "decimals": 0, "ease": "linear|in|out", "format": "number|compact|time",
       "show": [0.3, 18], "alert": true, "alertAfter": 4 }
   ],
-  "effects": [ /* see EFFECTS; 1-4 effects, the main one usually starts at 3.5-5s right after the title */ ],
+  "effects": [ /* see EFFECTS; ${isLong(min) ? '3-7' : '1-4'} effects, the main one usually starts at 3.5-5s right after the title */ ],
   "captions": [ // serif text. style "title" = big hook at top (first ~4s), "subtitle" = lower third, "big" = huge bold word
     { "text": "What if ...?", "start": 0.2, "end": 4.2, "style": "title" },
     { "text": "Short punchy fact.", "start": 5, "end": 8.5, "style": "subtitle" }
   ],
-  "endcard": { "start": 17, "text": "Part 2?", "cta": "Follow for part 2" },  // optional
+  "endcard": { "start": ${Math.ceil(min) - 3}, "text": "Part 2?", "cta": "Follow for part 2" },  // optional
   "language": "en|nl|be|de|fr|es",       // language of captions + voice-over (same as the user's prompt)
   "voice": { "gender": "male|female" },
   "voiceover": [ // spoken narration, like a documentary narrator. One line per beat, timed to the captions.
@@ -71,13 +75,19 @@ EFFECTS (common fields: type, start, end (optional), ramp (fade seconds, default
 RULES
 - Be scientifically grounded: numbers in hud/captions must be realistic and defensible.
 - Captions: short (max ~8 words), punchy, escalating. The last caption is a twist or a cliffhanger.
-- Length: at least 23 seconds. Use the time: hook (0-4s), the event (4-8s), 2-3 escalating consequences with their own
+${isLong(min) ? `- Length: at least ${min} seconds (TikTok only pays creators for videos OVER one minute, so never go shorter).
+  Tell it as a mini documentary with time jumps: hook (0-4s), the event (4-9s), then 5-7 escalating chapters
+  ("10 seconds later…", "1 hour later…", "1 day later…", "1 year later…"), each with its own effect or camera change,
+  caption, voice line and ideally a HUD counter. Add a mid-video re-hook around 25-35s ("But that's not the worst part.")
+  so viewers keep watching, and end with the twist. Use 12-18 captions and 12-18 voice-over lines spread over the
+  whole video; the narration should talk almost continuously (no silent gaps longer than ~3 s).
+` : `- Length: at least ${min} seconds. Use the time: hook (0-4s), the event (4-8s), 2-3 escalating consequences with their own
   caption + voice line, then the twist. Use 5-7 captions and 5-7 voice-over lines spread over the whole video.
-- Pick the setting and camera that show the effect best (e.g. tires -> city street, ocean draining -> beach, meteor -> aerial or drone).
+`}- Pick the setting and camera that show the effect best (e.g. tires -> city street, ocean draining -> beach, meteor -> aerial or drone).
 - Captions are in the SAME LANGUAGE as the user's prompt.
 `;
 
-export function planPrompt(userPrompt, pastTitles = []) {
+export function planPrompt(userPrompt, pastTitles = [], min = 23) {
   return `You are the creative director + scientist of a viral TikTok account that posts "What if...?" simulations.
 The user wants a video about: """${userPrompt}"""
 
@@ -87,37 +97,37 @@ If it duplicates a past video, add a fresh twist.
 Step 2 – SOURCES: list 2-4 real facts (with a source name) that back the numbers you'll show.
 Step 3 – SCENE: write the scene spec.
 
-${SPEC_DOC}
+${specDoc(min)}
 
 Reply with ONLY one JSON object, no prose:
 {
   "premise": { "verdict": "ok|twist", "note": "one sentence" },
   "facts": [ { "text": "...", "source": "..." } ],
   "spec": { ...scene spec... },
-  "tiktok": { "description": "post caption with a hook question", "hashtags": ["whatif", "..."] }
+  "tiktok": { "description": "post caption with a hook question that makes people comment (ask their opinion)", "hashtags": ["whatif", "..."] }
 }`;
 }
 
-export function fixPrompt(spec, errors) {
+export function fixPrompt(spec, errors, min = 23) {
   return `This "What if" scene spec produced errors when rendering in the engine:
 ${errors.map((e) => '- ' + e).join('\n')}
 
 Spec:
 ${JSON.stringify(spec, null, 2)}
 
-${SPEC_DOC}
+${specDoc(min)}
 
 Fix the spec so it renders without errors (keep the idea). Reply with ONLY the corrected spec JSON object.`;
 }
 
-export function reviewPrompt(spec) {
+export function reviewPrompt(spec, min = 23) {
   return `You are reviewing frames rendered from this "What if" TikTok scene spec. Check them like an editor:
 is the effect clearly visible, is text readable, is anything broken (black frames, objects missing, camera inside a wall)?
 
 Spec:
 ${JSON.stringify(spec, null, 2)}
 
-${SPEC_DOC}
+${specDoc(min)}
 
 Reply with ONLY JSON: { "ok": true|false, "issues": ["..."], "spec": { ...improved spec, only if ok is false... } }`;
 }
