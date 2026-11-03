@@ -1,0 +1,4 @@
+std = "roblox"
+
+[lints]
+# Lune-scripts (tests en tools) gebruiken andere globals; die checken we apart.
